@@ -6,21 +6,26 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { jobId: string } }
 ) {
-  try {
-    const { jobId } = params
-    const { searchParams } = new URL(request.url)
-    const assetType = searchParams.get('asset_type')
+  const jobId = params.jobId
+  const { searchParams } = new URL(request.url)
+  const assetType = searchParams.get('asset_type')
 
-    if (!assetType || !['glb', 'usdz', 'image'].includes(assetType)) {
-      return NextResponse.json(
-        { error: 'Invalid asset type. Must be: glb, usdz, or image' },
-        { status: 400 }
-      )
-    }
+  console.log(`[Asset] Fetching ${assetType} for job ${jobId}`)
 
-    const response = await fetch(
-      `${EXTERNAL_API_URL}/api/asset/${jobId}?asset_type=${assetType}`
+  if (!assetType || !['glb', 'usdz', 'image'].includes(assetType)) {
+    return NextResponse.json(
+      { error: 'Invalid asset type. Must be: glb, usdz, or image' },
+      { status: 400 }
     )
+  }
+
+  try {
+    const response = await fetch(
+      `${EXTERNAL_API_URL}/api/asset/${jobId}?asset_type=${assetType}`,
+      { cache: 'no-store' }
+    )
+
+    console.log(`[Asset] Response status: ${response.status}`)
 
     if (!response.ok) {
       return NextResponse.json(
@@ -30,6 +35,7 @@ export async function GET(
     }
 
     const buffer = await response.arrayBuffer()
+    console.log(`[Asset] Got ${buffer.byteLength} bytes`)
     
     // Set appropriate content type and headers
     const contentTypes: Record<string, string> = {
@@ -53,7 +59,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Asset fetch error:', error)
+    console.error('[Asset] Error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch asset' },
       { status: 500 }
