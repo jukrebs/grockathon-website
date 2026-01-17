@@ -85,72 +85,47 @@
 
 .actions {
   display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.arButton {
-  flex: 1;
-  min-width: 200px;
+.shopButton {
+  flex: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  background: var(--text-primary);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   border: none;
   border-radius: 12px;
-  padding: 16px 24px;
+  padding: 14px 24px;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
-  color: var(--bg-primary);
-  text-decoration: none;
+  color: white;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.arButton:hover {
-  background: var(--text-secondary);
+.shopButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
 }
 
-.arButton svg {
-  width: 22px;
-  height: 22px;
-}
-
-.arNotice {
-  flex: 1;
-  min-width: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.arNotice svg {
-  width: 20px;
-  height: 20px;
-}
-
-.downloadButtons {
-  display: flex;
-  gap: 8px;
+.shopButton svg {
+  width: 18px;
+  height: 18px;
 }
 
 .downloadButton {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   background: var(--bg-input);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 12px;
+  padding: 14px 16px;
   font-family: inherit;
   font-size: 14px;
   color: var(--text-secondary);
@@ -180,17 +155,19 @@
     border-radius: 12px;
   }
 
-  .arButton,
-  .arNotice {
-    min-width: 100%;
+  .actions {
+    flex-wrap: wrap;
   }
 
-  .downloadButtons {
-    width: 100%;
+  .shopButton {
+    flex: 1 1 100%;
   }
 
   .downloadButton {
     flex: 1;
-    justify-content: center;
   }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

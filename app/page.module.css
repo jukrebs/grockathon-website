@@ -190,6 +190,15 @@
   color: var(--text-primary);
 }
 
+.exampleButton.cached {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.exampleButton.cached:hover {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.1);
+}
+
 .exampleButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
