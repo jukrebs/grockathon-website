@@ -4,6 +4,8 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .container {
@@ -23,18 +25,18 @@
 }
 
 .logo {
-  height: 40px;
+  height: 56px;
   width: auto;
   color: var(--text-primary);
 }
 
 .arBadge {
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--bg-primary);
   background: var(--text-primary);
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
   letter-spacing: 0.02em;
 }
 
@@ -187,12 +189,12 @@
   }
 
   .logo {
-    height: 32px;
+    height: 40px;
   }
 
   .arBadge {
-    font-size: 12px;
-    padding: 3px 8px;
+    font-size: 14px;
+    padding: 4px 10px;
   }
 
   .inputWrapper {

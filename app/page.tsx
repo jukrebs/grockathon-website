@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './page.module.css'
 import ModelPreview from '@/components/ModelPreview'
+import StarField from '@/components/StarField'
 
 type GenerationState = 'idle' | 'generating' | 'success' | 'error'
 
@@ -77,6 +78,8 @@ export default function Home() {
 
   return (
     <main className={styles.main}>
+      <StarField />
+      
       <AnimatePresence mode="wait">
         {state !== 'success' ? (
           <motion.div 
