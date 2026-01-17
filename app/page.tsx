@@ -14,49 +14,111 @@ interface ModelData {
   name: string
 }
 
+interface StatusResponse {
+  job_id: string
+  status: 'queued' | 'processing' | 'complete' | 'error'
+  stage: string
+  progress: number
+  error?: string
+  glbUrl?: string
+  usdzUrl?: string
+}
+
 const examplePrompts = [
   'A futuristic robot',
   'Crystal vase',
   'Vintage camera',
 ]
 
+const stageLabels: Record<string, string> = {
+  'initializing': 'Initializing...',
+  'generating_image': 'Generating image...',
+  'generating_3d': 'Creating 3D model...',
+  'converting_usdz': 'Converting for AR...',
+  'complete': 'Complete!',
+  'queued': 'In queue...',
+}
+
 export default function Home() {
   const [prompt, setPrompt] = useState('')
   const [state, setState] = useState<GenerationState>('idle')
   const [modelData, setModelData] = useState<ModelData | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState(0)
+  const [stage, setStage] = useState('')
 
-  const handleGenerate = useCallback(async (inputPrompt?: string) => {
-    const finalPrompt = inputPrompt || prompt
-    if (!finalPrompt.trim() || state === 'generating') return
+  const pollStatus = useCallback(async (jobId: string, promptText: string): Promise<void> => {
+    const maxAttempts = 120
+    let attempts = 0
+
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      attempts++
+
+      try {
+        const response = await fetch(`/api/status/${jobId}`)
+        const status: StatusResponse = await response.json()
+
+        if (!response.ok) {
+          throw new Error(status.error || 'Failed to check status')
+        }
+
+        setProgress(status.progress)
+        setStage(stageLabels[status.stage] || status.stage)
+
+        if (status.status === 'complete' && status.glbUrl && status.usdzUrl) {
+          setModelData({
+            glbUrl: status.glbUrl,
+            usdzUrl: status.usdzUrl,
+            name: promptText,
+          })
+          setState('success')
+          return
+        }
+
+        if (status.status === 'error') {
+          throw new Error(status.error || 'Generation failed')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Something went wrong')
+        setState('error')
+        return
+      }
+    }
+
+    setError('Generation timed out. Please try again.')
+    setState('error')
+  }, [])
+
+  const handleGenerate = useCallback(async () => {
+    if (!prompt.trim() || state === 'generating') return
 
     setState('generating')
     setError(null)
+    setProgress(0)
+    setStage('Starting...')
 
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: finalPrompt.trim() }),
+        body: JSON.stringify({ prompt: prompt.trim() }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to generate model')
+        throw new Error(data.error || 'Failed to start generation')
       }
 
-      setModelData({
-        glbUrl: data.glbUrl,
-        usdzUrl: data.usdzUrl,
-        name: data.name || finalPrompt.trim(),
-      })
-      setState('success')
+      // Start polling for status
+      await pollStatus(data.job_id, prompt.trim())
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
       setState('error')
     }
-  }, [prompt, state])
+  }, [prompt, state, pollStatus])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -74,6 +136,8 @@ export default function Home() {
     setModelData(null)
     setPrompt('')
     setError(null)
+    setProgress(0)
+    setStage('')
   }
 
   return (
@@ -152,34 +216,44 @@ export default function Home() {
               )}
 
               {state === 'generating' && (
-                <motion.p 
-                  className={styles.status}
+                <motion.div 
+                  className={styles.progressSection}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  Generating your 3D object...
-                </motion.p>
+                  <div className={styles.progressBar}>
+                    <motion.div 
+                      className={styles.progressFill}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                  <p className={styles.status}>{stage}</p>
+                </motion.div>
               )}
             </motion.div>
 
             {/* Example Prompts */}
-            <motion.div 
-              className={styles.examples}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              {examplePrompts.map((example) => (
-                <button
-                  key={example}
-                  className={styles.exampleButton}
-                  onClick={() => handleExampleClick(example)}
-                  disabled={state === 'generating'}
-                >
-                  {example}
-                </button>
-              ))}
-            </motion.div>
+            {state !== 'generating' && (
+              <motion.div 
+                className={styles.examples}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                {examplePrompts.map((example) => (
+                  <button
+                    key={example}
+                    className={styles.exampleButton}
+                    onClick={() => handleExampleClick(example)}
+                    disabled={state === 'generating'}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </motion.div>
+            )}
           </motion.div>
         ) : (
           <motion.div 
