@@ -21,12 +21,12 @@ export async function GET(
 
     const status = await response.json()
 
-    // If complete, include asset URLs
+    // If complete, include asset URLs (proxied through our API)
     if (status.status === 'complete') {
       return NextResponse.json({
         ...status,
-        glbUrl: `${EXTERNAL_API_URL}/api/asset/${jobId}?asset_type=glb`,
-        usdzUrl: `${EXTERNAL_API_URL}/api/asset/${jobId}?asset_type=usdz`,
+        glbUrl: `/api/asset/${jobId}?asset_type=glb`,
+        usdzUrl: `/api/asset/${jobId}?asset_type=usdz`,
       })
     }
 
