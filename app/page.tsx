@@ -247,7 +247,6 @@ export default function Home() {
                     key={example}
                     className={styles.exampleButton}
                     onClick={() => handleExampleClick(example)}
-                    disabled={state === 'generating'}
                   >
                     {example}
                   </button>
