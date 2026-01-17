@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './page.module.css'
 import ModelPreview from '@/components/ModelPreview'
@@ -24,20 +24,12 @@ interface StatusResponse {
   usdzUrl?: string
 }
 
-// Examples - add glbUrl and usdzUrl to skip generation and use cached models
 interface Example {
-  prompt: string
-  glbUrl?: string  // Optional: cached GLB file URL
-  usdzUrl?: string // Optional: cached USDZ file URL
+  job_id: string
+  name: string
+  description: string
+  image_url: string
 }
-
-const examples: Example[] = [
-  { prompt: 'A futuristic robot' },
-  { prompt: 'Crystal vase' },
-  { prompt: 'Vintage camera' },
-  // To add cached examples:
-  // { prompt: 'Cool spaceship', glbUrl: '/examples/spaceship.glb', usdzUrl: '/examples/spaceship.usdz' },
-]
 
 const stageLabels: Record<string, string> = {
   'initializing': 'Initializing...',
@@ -55,6 +47,26 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState(0)
   const [stage, setStage] = useState('')
+  const [examples, setExamples] = useState<Example[]>([])
+  const [loadingExamples, setLoadingExamples] = useState(true)
+
+  // Fetch examples on mount
+  useEffect(() => {
+    const fetchExamples = async () => {
+      try {
+        const response = await fetch('/api/examples')
+        const data = await response.json()
+        if (data.examples) {
+          setExamples(data.examples)
+        }
+      } catch (err) {
+        console.error('Failed to fetch examples:', err)
+      } finally {
+        setLoadingExamples(false)
+      }
+    }
+    fetchExamples()
+  }, [])
 
   const pollStatus = useCallback(async (jobId: string, promptText: string): Promise<void> => {
     const maxAttempts = 120
@@ -148,54 +160,14 @@ export default function Home() {
   }
 
   const handleExampleClick = (example: Example) => {
-    setPrompt(example.prompt)
-    
-    // If example has cached models, use them directly
-    if (example.glbUrl && example.usdzUrl) {
-      setModelData({
-        glbUrl: example.glbUrl,
-        usdzUrl: example.usdzUrl,
-        name: example.prompt,
-      })
-      setState('success')
-      return
-    }
-    
-    // Otherwise trigger generation
-    setTimeout(() => {
-      const generateWithPrompt = async () => {
-        setState('generating')
-        setError(null)
-        setProgress(0)
-        setStage('Starting...')
-
-        try {
-          const response = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt: example.prompt.trim() }),
-          })
-
-          const data = await response.json()
-          console.log('[Generate] Response:', data)
-
-          if (!response.ok) {
-            throw new Error(data.error || 'Failed to start generation')
-          }
-
-          if (!data.job_id) {
-            throw new Error('No job_id received from server')
-          }
-
-          console.log('[Generate] Starting poll for job:', data.job_id)
-          await pollStatus(data.job_id, example.prompt.trim())
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Something went wrong')
-          setState('error')
-        }
-      }
-      generateWithPrompt()
-    }, 0)
+    // Use cached example - instant load
+    setPrompt(example.name)
+    setModelData({
+      glbUrl: `/api/asset/${example.job_id}?asset_type=glb`,
+      usdzUrl: `/api/asset/${example.job_id}?asset_type=usdz`,
+      name: example.name,
+    })
+    setState('success')
   }
 
   const handleReset = () => {
@@ -301,23 +273,41 @@ export default function Home() {
               )}
             </motion.div>
 
-            {/* Example Prompts */}
+            {/* Examples */}
             {state !== 'generating' && (
               <motion.div 
-                className={styles.examples}
+                className={styles.examplesSection}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                {examples.map((example) => (
-                  <button
-                    key={example.prompt}
-                    className={`${styles.exampleButton} ${example.glbUrl ? styles.cached : ''}`}
-                    onClick={() => handleExampleClick(example)}
-                  >
-                    {example.prompt}
-                  </button>
-                ))}
+                {loadingExamples ? (
+                  <div className={styles.examplesLoading}>Loading examples...</div>
+                ) : examples.length > 0 ? (
+                  <>
+                    <p className={styles.examplesLabel}>Try an example</p>
+                    <div className={styles.examplesGrid}>
+                      {examples.map((example) => (
+                        <button
+                          key={example.job_id}
+                          className={styles.exampleCard}
+                          onClick={() => handleExampleClick(example)}
+                        >
+                          <div className={styles.exampleImageWrapper}>
+                            <img 
+                              src={example.image_url} 
+                              alt={example.name}
+                              className={styles.exampleImage}
+                            />
+                          </div>
+                          <div className={styles.exampleInfo}>
+                            <span className={styles.exampleName}>{example.name}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
               </motion.div>
             )}
           </motion.div>
