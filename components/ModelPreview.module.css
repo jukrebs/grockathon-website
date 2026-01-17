@@ -88,34 +88,6 @@
   gap: 10px;
 }
 
-.shopButton {
-  flex: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  border: none;
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-family: inherit;
-  font-size: 15px;
-  font-weight: 500;
-  color: white;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.shopButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
-}
-
-.shopButton svg {
-  width: 18px;
-  height: 18px;
-}
-
 .downloadButton {
   flex: 1;
   display: flex;
