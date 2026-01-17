@@ -174,7 +174,7 @@
 
 .exampleButton {
   background: transparent;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid var(--border);
   border-radius: 9999px;
   padding: 10px 18px;
   font-family: inherit;
@@ -185,8 +185,8 @@
 }
 
 .exampleButton:hover {
-  border-color: rgba(139, 92, 246, 0.6);
-  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--border-focus);
+  background: var(--bg-input);
   color: var(--text-primary);
 }
 
