@@ -1,0 +1,216 @@
+.main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.container {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+/* Logo */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  height: 40px;
+  width: auto;
+  color: var(--text-primary);
+}
+
+.arBadge {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bg-primary);
+  background: var(--text-primary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* Input Section */
+.inputSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.inputWrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 6px 6px 6px 24px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inputWrapper:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 1px var(--border-focus);
+}
+
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 16px;
+  padding: 12px 0;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:disabled {
+  opacity: 0.6;
+}
+
+.submitButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: var(--text-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: #d4d4d4;
+  transform: scale(1.02);
+}
+
+.submitButton:disabled {
+  background: var(--bg-hover);
+  cursor: not-allowed;
+}
+
+.submitButton svg {
+  width: 20px;
+  height: 20px;
+  color: var(--bg-primary);
+}
+
+.submitButton:disabled svg {
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bg-primary);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.error {
+  font-size: 14px;
+  color: #ef4444;
+  text-align: center;
+}
+
+.status {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: center;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Example Prompts */
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.exampleButton {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.exampleButton:hover:not(:disabled) {
+  background: var(--bg-input);
+  border-color: var(--border-focus);
+  color: var(--text-primary);
+}
+
+.exampleButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Preview Container */
+.previewContainer {
+  width: 100%;
+  max-width: 900px;
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 60px;
+  }
+
+  .container {
+    gap: 32px;
+  }
+
+  .logo {
+    height: 32px;
+  }
+
+  .arBadge {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .inputWrapper {
+    padding: 4px 4px 4px 18px;
+  }
+
+  .input {
+    font-size: 15px;
+    padding: 10px 0;
+  }
+
+  .submitButton {
+    width: 42px;
+    height: 42px;
+  }
+
+  .exampleButton {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+}
