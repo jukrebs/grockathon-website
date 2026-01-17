@@ -56,8 +56,13 @@ export default function Home() {
       attempts++
 
       try {
-        const response = await fetch(`/api/status/${jobId}`)
+        const response = await fetch(`/api/status/${jobId}`, {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        })
         const status: StatusResponse = await response.json()
+        
+        console.log('[Poll]', status.status, status.stage, status.progress)
 
         if (!response.ok) {
           throw new Error(status.error || 'Failed to check status')
@@ -106,11 +111,17 @@ export default function Home() {
       })
 
       const data = await response.json()
+      console.log('[Generate] Response:', data)
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to start generation')
       }
 
+      if (!data.job_id) {
+        throw new Error('No job_id received from server')
+      }
+
+      console.log('[Generate] Starting poll for job:', data.job_id)
       // Start polling for status
       await pollStatus(data.job_id, prompt.trim())
 
