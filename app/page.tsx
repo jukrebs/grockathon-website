@@ -28,7 +28,6 @@ interface Example {
   job_id: string
   name: string
   description: string
-  image_url: string
 }
 
 const stageLabels: Record<string, string> = {
@@ -48,7 +47,6 @@ export default function Home() {
   const [progress, setProgress] = useState(0)
   const [stage, setStage] = useState('')
   const [examples, setExamples] = useState<Example[]>([])
-  const [loadingExamples, setLoadingExamples] = useState(true)
 
   // Fetch examples on mount
   useEffect(() => {
@@ -61,8 +59,6 @@ export default function Home() {
         }
       } catch (err) {
         console.error('Failed to fetch examples:', err)
-      } finally {
-        setLoadingExamples(false)
       }
     }
     fetchExamples()
@@ -143,7 +139,6 @@ export default function Home() {
       }
 
       console.log('[Generate] Starting poll for job:', data.job_id)
-      // Start polling for status
       await pollStatus(data.job_id, prompt.trim())
 
     } catch (err) {
@@ -160,7 +155,6 @@ export default function Home() {
   }
 
   const handleExampleClick = (example: Example) => {
-    // Use cached example - instant load
     setPrompt(example.name)
     setModelData({
       glbUrl: `/api/asset/${example.job_id}?asset_type=glb`,
@@ -273,41 +267,23 @@ export default function Home() {
               )}
             </motion.div>
 
-            {/* Examples */}
-            {state !== 'generating' && (
+            {/* Example Buttons */}
+            {state !== 'generating' && examples.length > 0 && (
               <motion.div 
-                className={styles.examplesSection}
+                className={styles.examples}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                {loadingExamples ? (
-                  <div className={styles.examplesLoading}>Loading examples...</div>
-                ) : examples.length > 0 ? (
-                  <>
-                    <p className={styles.examplesLabel}>Try an example</p>
-                    <div className={styles.examplesGrid}>
-                      {examples.map((example) => (
-                        <button
-                          key={example.job_id}
-                          className={styles.exampleCard}
-                          onClick={() => handleExampleClick(example)}
-                        >
-                          <div className={styles.exampleImageWrapper}>
-                            <img 
-                              src={example.image_url} 
-                              alt={example.name}
-                              className={styles.exampleImage}
-                            />
-                          </div>
-                          <div className={styles.exampleInfo}>
-                            <span className={styles.exampleName}>{example.name}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : null}
+                {examples.map((example) => (
+                  <button
+                    key={example.job_id}
+                    className={styles.exampleButton}
+                    onClick={() => handleExampleClick(example)}
+                  >
+                    {example.name}
+                  </button>
+                ))}
               </motion.div>
             )}
           </motion.div>
